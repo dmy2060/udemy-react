@@ -1,11 +1,10 @@
-import { useState } from 'react';
 const initialGameBoard = [
   [null, null, null],
   [null, null, null],
   [null, null, null],
 ];
 
-export default function GameBoard({ onSelectSquare, activePlayerSymbol }) {
+export default function GameBoard({ onSelectSquare }) {
   /**
    * app 컴포넌트에서 끌어올려서 사용할 예정
    * 여기에는 Log 컴포넌트에 필요한 순서 정보가 없으므로
@@ -32,9 +31,7 @@ export default function GameBoard({ onSelectSquare, activePlayerSymbol }) {
           <ol>
             {row.map((playerSymbol, colIndex) => (
               <li key={colIndex}>
-                <button onClick={() => handleSelectSquare(rowIndex, colIndex)}>
-                  {playerSymbol}
-                </button>
+                <button onClick={onSelectSquare}>{playerSymbol}</button>
               </li>
             ))}
           </ol>
