@@ -4,25 +4,15 @@ const initialGameBoard = [
   [null, null, null],
 ];
 
-export default function GameBoard({ onSelectSquare }) {
-  /**
-   * app 컴포넌트에서 끌어올려서 사용할 예정
-   * 여기에는 Log 컴포넌트에 필요한 순서 정보가 없으므로
-   * 참고용으로만 두고 재 작성 예정
-   */
-  // const [gameBoard, setGameBoard] = useState(initialGameBoard);
+export default function GameBoard({ onSelectSquare, turns }) {
+  let gameBoard = initialGameBoard;
 
-  // function handleSelectSquare(rowIndex, colIndex) {
-  //   setGameBoard(prevGameBoard => {
-  //     const updatedBoard = [
-  //       ...prevGameBoard.map(innerArray => [...innerArray]),
-  //     ];
-  //     updatedBoard[rowIndex][colIndex] = activePlayerSymbol;
-  //     return updatedBoard;
-  //   });
+  for (const turn of turns) {
+    const { square, player } = turn;
+    const { row, col } = square;
 
-  //   onSelectSquare();
-  // }
+    gameBoard[row][col] = player;
+  }
 
   return (
     <ol id='game-board'>
@@ -31,7 +21,9 @@ export default function GameBoard({ onSelectSquare }) {
           <ol>
             {row.map((playerSymbol, colIndex) => (
               <li key={colIndex}>
-                <button onClick={onSelectSquare}>{playerSymbol}</button>
+                <button onClick={() => onSelectSquare(rowIndex, colIndex)}>
+                  {playerSymbol}
+                </button>
               </li>
             ))}
           </ol>
