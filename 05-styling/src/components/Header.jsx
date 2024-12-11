@@ -1,5 +1,5 @@
 import logo from '../assets/logo.png';
-import './Header.css';
+import classes from './Header.module.css';
 
 export default function Header() {
   return (
@@ -12,3 +12,7 @@ export default function Header() {
     </header>
   );
 }
+
+// <p className={classes.p}>
+//   A community of artists and art-lovers.
+// </p>;
