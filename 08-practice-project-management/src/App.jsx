@@ -2,26 +2,23 @@ import { useState } from 'react';
 import noProjectImg from './assets/no-projects.png';
 
 function App() {
-  const [projectList, setProjectList] = useState([]);
-  const [showWrite, setShowWrite] = useState(false);
-  const [showDetail, setShowDetail] = useState(false);
-  const [writeProject, setWriteProject] = useState({
+  const [projectList, setProjectList] = useState([]); // 전체 데이터 관리
+  const [selectedId, setSelectedId] = useState(null);
+  const [show, setShow] = useState('none');
+  const [formData, setFormData] = useState({
     title: '',
     description: '',
     date: '',
+    subTask: [],
   });
-  const [activeItem, setActiveItem] = useState({});
+  const [newTask, setNewTask] = useState('');
 
   function createProjectBtn() {
-    setShowWrite((preState) => !preState);
-    setShowDetail(false);
+    setShow('write');
   }
 
   function handleChange(event, id) {
-    console.log(event.target.value);
-    console.log(id);
-
-    setWriteProject((prevState) => {
+    setFormData((prevState) => {
       return {
         ...prevState,
         [id]: event.target.value,
@@ -30,15 +27,55 @@ function App() {
   }
 
   function handleSaveClick() {
-    setProjectList((prevList) => {
-      return [...prevList, writeProject];
+    setProjectList((prev) => [...prev, formData]);
+    setFormData(() => {
+      return {
+        title: '',
+        description: '',
+        date: '',
+        subTask: [],
+      };
     });
+    setShow('none');
   }
 
-  function handleModifyClick(item) {
-    setActiveItem(item);
-    setShowWrite(false);
-    setShowDetail(true);
+  function handleModifyClick(item, i) {
+    setSelectedId(i);
+    setShow('detail');
+  }
+  const selectedProject = projectList[selectedId];
+
+  function handleInputChange(event) {
+    setNewTask(() => event.target.value);
+  }
+
+  function handleAddBtn() {
+    setProjectList((prev) => {
+      return prev.map((project, index) => {
+        if (index === selectedId) {
+          return {
+            ...project,
+            subTask: [...project.subTask, newTask],
+          };
+        }
+        return project;
+      });
+    });
+    setNewTask('');
+  }
+
+  function deleteTaskBtn(inputIndex) {
+    setProjectList((prev) => {
+      return prev.map((project, index) => {
+        if (index === selectedId) {
+          return {
+            ...project,
+            subTask: project.subTask.filter((task, taskIndex) => taskIndex !== inputIndex),
+          };
+        }
+        return project;
+      });
+    });
   }
 
   return (
@@ -47,24 +84,28 @@ function App() {
         <h2>YOUR PROJECT</h2>
         <button onClick={createProjectBtn}>+ Add Project</button>
         <ul>
-          {projectList.map((item) => (
-            <li onClick={() => handleModifyClick(item)}>{item.title}</li>
+          {projectList.map((item, i) => (
+            <li key={i + 1} onClick={() => handleModifyClick(item, i)}>
+              {item.title}
+            </li>
           ))}
         </ul>
       </div>
 
       <div className="projects-content">
         {/* 아무것도 없을 때 */}
-        <div>
+        {show == 'none' ? (
           <div>
-            {/* <img src={noProjectImg} /> */}
-            <p>No Project Selected</p>
-            <p>Select a project or get started with a new one</p>
+            <div>
+              {/* <img src={noProjectImg} /> */}
+              <p>No Project Selected</p>
+              <p>Select a project or get started with a new one</p>
+            </div>
+            <button>Create new project</button>
           </div>
-          <button>Create new project</button>
-        </div>
+        ) : null}
         {/* 작성 페이지 */}
-        {showWrite ? (
+        {show == 'write' ? (
           <div>
             <div className="btn-wrap">
               <button>Cancle</button>
@@ -76,7 +117,7 @@ function App() {
                 <p>TITLE</p>
                 <input
                   type="text"
-                  value={writeProject.title}
+                  value={formData.title}
                   onChange={(event) => handleChange(event, 'title')}
                 />
               </div>
@@ -87,7 +128,7 @@ function App() {
                   id=""
                   cols="30"
                   rows="10"
-                  value={writeProject.description}
+                  value={formData.description}
                   onChange={(event) => handleChange(event, 'description')}
                 ></textarea>
               </div>
@@ -96,7 +137,7 @@ function App() {
 
                 <input
                   type="date"
-                  value={writeProject.date}
+                  value={formData.date}
                   onChange={(event) => handleChange(event, 'date')}
                 />
               </div>
@@ -104,19 +145,19 @@ function App() {
           </div>
         ) : null}
 
-        {showDetail ? (
+        {show == 'detail' ? (
           <div>
             <div className="board-box">
               <div className="board-header">
                 <div className="title-wrap">
-                  <p>{activeItem.title}</p>
+                  <p>{selectedProject.title}</p>
                   <button>Delete</button>
                 </div>
                 <div>
-                  <p className="date">{activeItem.date}</p>
+                  <p className="date">{selectedProject.date}</p>
                 </div>
               </div>
-              <div className="board-content">{activeItem.description}</div>
+              <div className="board-content">{selectedProject.description}</div>
             </div>
             <div className="tasks-box">
               <div className="header">
@@ -126,10 +167,18 @@ function App() {
               </div>
               <div className="tasks-content">
                 <div className="input-box">
-                  <input type="text" />
-                  <button>Add Task</button>
+                  <input
+                    type="text"
+                    value={newTask}
+                    onChange={(event) => handleInputChange(event)}
+                  />
+                  <button onClick={handleAddBtn}>Add Task</button>
                 </div>
-                <p></p>
+                {selectedProject.subTask.map((item, i) => (
+                  <p>
+                    {item} <button onClick={() => deleteTaskBtn(i)}>삭제</button>
+                  </p>
+                ))}
               </div>
             </div>
           </div>
